@@ -1,3 +1,9 @@
+import streamlit as st
+import sqlite3
+import pandas as pd
+
+db_path = "job_tracker.db"
+
 def get_application_data():
     conn = sqlite3.connect(db_path)
     query = """
