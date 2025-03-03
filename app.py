@@ -1,63 +1,70 @@
 import streamlit as st
-import pandas as pd
 import sqlite3
-import matplotlib.pyplot as plt
-import plotly.express as px  # Import Plotly
+import pandas as pd
 
-# Connect to database
 db_path = "job_tracker.db"
-conn = sqlite3.connect(db_path)
 
-# Load data
-df = pd.read_sql("SELECT * FROM fact_application", conn)
-df_company = pd.read_sql("SELECT ID, Name FROM dim_company", conn)
-df_status = pd.read_sql("SELECT ID, Status FROM dim_status", conn)
+def get_data():
+    conn = sqlite3.connect(db_path)
+    query = "SELECT * FROM fact_application"
+    df = pd.read_sql(query, conn)
+    conn.close()
+    return df
 
-# Close connection
-conn.close()
+def insert_entry(company_id, role_id, referral, date_applie, status_id, screening, interview_1, interview_2, interview_3, offer):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO fact_application (company_id, role_id, referral, date_applie, status_id, screening, interview_1, interview_2, interview_3, offer)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (company_id, role_id, referral, date_applie, status_id, screening, interview_1, interview_2, interview_3, offer))
+    conn.commit()
+    conn.close()
+    st.experimental_rerun()
 
-# Normalize column names
-df.columns = df.columns.str.lower().str.replace(" ", "_")
-df_company.columns = df_company.columns.str.lower().str.replace(" ", "_")
-df_status.columns = df_status.columns.str.lower().str.replace(" ", "_")
+def update_entry(app_id, column, new_value):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute(f"UPDATE fact_application SET {column} = ? WHERE app_id = ?", (new_value, app_id))
+    conn.commit()
+    conn.close()
+    st.experimental_rerun()
 
-# Merge company names and status names
-df = df.merge(df_company, left_on="company_id", right_on="id", how="left").drop(columns=["company_id", "id"])
-df = df.rename(columns={"name": "company_name"})
-df = df.merge(df_status, left_on="status_id", right_on="id", how="left").drop(columns=["status_id", "id"])
-df = df.rename(columns={"status": "application_status"})
+def delete_entry(app_id):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM fact_application WHERE app_id = ?", (app_id,))
+    conn.commit()
+    conn.close()
+    st.experimental_rerun()
 
-# Convert date column to datetime format
-df["date_applied"] = pd.to_datetime(df["date_applied"])
+st.title("Job Tracker")
 
-# Streamlit App Title
-st.title("📊 Job Application Tracker")
+data = get_data()
+st.dataframe(data)
 
-# Sidebar Filters
-company_filter = st.sidebar.multiselect("Filter by Company", df["company_name"].unique())
-status_filter = st.sidebar.multiselect("Filter by Status", df["application_status"].unique())
+st.header("Add New Application")
+company_id = st.number_input("Company ID", min_value=1, step=1)
+role_id = st.number_input("Role ID", min_value=1, step=1)
+referral = st.text_input("Referral (X or blank)")
+date_applie = st.date_input("Date Applied")
+status_id = st.number_input("Status ID", min_value=1, step=1)
+screening = st.text_input("Screening (X or blank)")
+interview_1 = st.text_input("Interview 1 (X or blank)")
+interview_2 = st.text_input("Interview 2 (X or blank)")
+interview_3 = st.text_input("Interview 3 (X or blank)")
+offer = st.text_input("Offer (X or blank)")
+if st.button("Add Application"):
+    insert_entry(company_id, role_id, referral, date_applie, status_id, screening, interview_1, interview_2, interview_3, offer)
 
-# Apply filters
-if company_filter:
-    df = df[df["company_name"].isin(company_filter)]
-if status_filter:
-    df = df[df["application_status"].isin(status_filter)]
+st.header("Update Application")
+app_id = st.number_input("Application ID", min_value=1, step=1)
+column = st.selectbox("Column to Update", ["company_id", "role_id", "referral", "date_applie", "status_id", "screening", "interview_1", "interview_2", "interview_3", "offer"])
+new_value = st.text_input("New Value")
+if st.button("Update Application"):
+    update_entry(app_id, column, new_value)
 
-# Display Data Table
-st.dataframe(df)
-
-# 📈 **Applications Over Time (Plotly)**
-st.subheader("📈 Applications Over Time")
-
-# Aggregate data by month
-applications_over_time = df.groupby(df["date_applied"].dt.to_period("M")).size().reset_index(name="count")
-applications_over_time["date_applied"] = applications_over_time["date_applied"].astype(str)  # Convert Period to String
-
-# Create Plotly Bar Chart
-fig = px.bar(applications_over_time, x="date_applied", y="count",
-             labels={"date_applied": "Month", "count": "Number of Applications"},
-             title="📈 Applications Submitted Over Time")
-
-# Show the chart in Streamlit
-st.plotly_chart(fig)
-
+st.header("Delete Application")
+del_app_id = st.number_input("Application ID to Delete", min_value=1, step=1)
+if st.button("Delete Application"):
+    delete_entry(del_app_id)
