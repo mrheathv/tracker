@@ -4,12 +4,19 @@ import pandas as pd
 
 db_path = "job_tracker.db"
 
-def get_data():
+def get_data(table):
     conn = sqlite3.connect(db_path)
-    query = "SELECT * FROM fact_application"
+    query = f"SELECT * FROM {table}"
     df = pd.read_sql(query, conn)
     conn.close()
     return df
+
+st.title("Job Tracker")
+
+st.header("View Data")
+table_option = st.selectbox("Select a table to view", ["fact_application", "dim_company", "dim_role", "dim_status"])
+data = get_data(table_option)
+st.dataframe(data)
 
 def insert_entry(company_id, role_id, referral, date_applie, status_id, screening, interview_1, interview_2, interview_3, offer):
     conn = sqlite3.connect(db_path)
@@ -37,11 +44,6 @@ def delete_entry(app_id):
     conn.commit()
     conn.close()
     st.experimental_rerun()
-
-st.title("Job Tracker")
-
-data = get_data()
-st.dataframe(data)
 
 st.header("Add New Application")
 company_id = st.number_input("Company ID", min_value=1, step=1)
