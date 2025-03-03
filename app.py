@@ -46,7 +46,9 @@ def delete_entry(app_id):
     st.rerun()
 
 st.header("Add New Application")
-company_id = st.number_input("Company ID", min_value=1, step=1)
+company_names = get_data("dim_company")["name"].tolist()
+company_name = st.selectbox("Company Name", company_names)
+company_id = get_data("dim_company").set_index("name").loc[company_name, "id"]
 role_id = st.number_input("Role ID", min_value=1, step=1)
 referral = st.text_input("Referral (X or blank)")
 date_applie = st.date_input("Date Applied")
