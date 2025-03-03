@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import sqlite3
 import matplotlib.pyplot as plt
+import plotly.express as px  # Import Plotly
 
 # Connect to database
 db_path = "job_tracker.db"
@@ -45,25 +46,18 @@ if status_filter:
 # Display Data Table
 st.dataframe(df)
 
-# 📊 **Interview Progression Funnel**
-st.subheader("📝 Interview Progression Funnel")
+# 📈 **Applications Over Time (Plotly)**
+st.subheader("📈 Applications Over Time")
 
-# Calculate Interview Stages
-interview_stages = ["screening", "interview_1", "interview_2", "interview_3", "offer"]
-interview_counts = {stage: df[stage].notna().sum() for stage in interview_stages}
-interview_counts["total_applications"] = len(df)
+# Aggregate data by month
+applications_over_time = df.groupby(df["date_applied"].dt.to_period("M")).size().reset_index(name="count")
+applications_over_time["date_applied"] = applications_over_time["date_applied"].astype(str)  # Convert Period to String
 
-# Order categories for visualization
-ordered_keys = ["total_applications", "screening", "interview_1", "interview_2", "interview_3", "offer"]
-ordered_values = [interview_counts[key] for key in ordered_keys]
+# Create Plotly Bar Chart
+fig = px.bar(applications_over_time, x="date_applied", y="count",
+             labels={"date_applied": "Month", "count": "Number of Applications"},
+             title="📈 Applications Submitted Over Time")
 
-# Generate Horizontal Bar Chart
-fig, ax = plt.subplots(figsize=(10, 6))
-ax.barh(ordered_keys, ordered_values, align="center")
-ax.set_xlabel("Number of Applications")
-ax.set_ylabel("Interview Stages")
-ax.set_title("📝 Interview Progression Funnel (Total Applications First)")
-ax.invert_yaxis()  # Invert for better visual alignment
+# Show the chart in Streamlit
+st.plotly_chart(fig)
 
-# Display in Streamlit
-st.pyplot(fig)
