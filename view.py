@@ -21,7 +21,23 @@ def get_application_data():
     conn.close()
     return df
 
-st.title("Application Overview")
+st.title("Applications List")
+
+# Chart: Total Applications by Status
+def get_status_counts():
+    conn = sqlite3.connect(db_path)
+    query = """
+    SELECT dim_status.status AS Status, COUNT(fact_application.app_id) AS Total_Applications
+    FROM fact_application
+    JOIN dim_status ON fact_application.status_id = dim_status.id
+    GROUP BY dim_status.status
+    """
+    df = pd.read_sql(query, conn)
+    conn.close()
+    return df
+
+status_data = get_status_counts()
+st.bar_chart(status_data.set_index("Status"))
 
 data = get_application_data()
 st.dataframe(data, hide_index=True)
