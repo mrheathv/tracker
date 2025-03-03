@@ -24,4 +24,4 @@ def get_application_data():
 st.title("Application Overview")
 
 data = get_application_data()
-st.dataframe(data)
+st.dataframe(data, hide_index=True)
