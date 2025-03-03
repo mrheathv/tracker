@@ -1,5 +1,3 @@
 streamlit
 pandas
-sqlalchemy
-matplotlib
-plotly
+sqlite3
