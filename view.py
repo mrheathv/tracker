@@ -62,16 +62,5 @@ def get_status_counts():
 status_data = get_status_counts()
 st.bar_chart(status_data.set_index("Status"))
 
-# Filters
 data = get_application_data()
-company_filter = st.selectbox("Filter by Company", ["All"] + sorted(data["Company_Name"].unique().tolist())).tolist()))
-status_filter = st.selectbox("Filter by Status", ["All"] + sorted(data["Status"].unique().tolist())).tolist()))
-
-filtered_data = data
-if company_filter != "All":
-    filtered_data = filtered_data[filtered_data["Company_Name"] == company_filter]
-if status_filter != "All":
-    filtered_data = filtered_data[filtered_data["Status"] == status_filter]
-
-st.dataframe(filtered_data, hide_index=True)
 st.dataframe(data, hide_index=True)
