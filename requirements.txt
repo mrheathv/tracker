@@ -3,4 +3,3 @@ pandas
 sqlalchemy
 matplotlib
 plotly
-sqlite3
