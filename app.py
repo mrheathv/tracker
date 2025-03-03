@@ -27,7 +27,7 @@ def insert_entry(company_id, role_id, referral, date_applie, status_id, screenin
     """, (company_id, role_id, referral, date_applie, status_id, screening, interview_1, interview_2, interview_3, offer))
     conn.commit()
     conn.close()
-    st.experimental_rerun()
+    st.rerun()
 
 def update_entry(app_id, column, new_value):
     conn = sqlite3.connect(db_path)
@@ -35,7 +35,7 @@ def update_entry(app_id, column, new_value):
     cursor.execute(f"UPDATE fact_application SET {column} = ? WHERE app_id = ?", (new_value, app_id))
     conn.commit()
     conn.close()
-    st.experimental_rerun()
+    st.rerun()
 
 def delete_entry(app_id):
     conn = sqlite3.connect(db_path)
@@ -43,7 +43,7 @@ def delete_entry(app_id):
     cursor.execute("DELETE FROM fact_application WHERE app_id = ?", (app_id,))
     conn.commit()
     conn.close()
-    st.experimental_rerun()
+    st.rerun()
 
 st.header("Add New Application")
 company_id = st.number_input("Company ID", min_value=1, step=1)
