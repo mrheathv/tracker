@@ -27,20 +27,16 @@ df = get_application_data()
 # Display DataFrame in Streamlit
 st.write(df)
 
-# Allow user to filter number of companies displayed
-num_companies = st.slider("Select number of companies to display", min_value=5, max_value=len(df["Company_Name"].unique()), value=10)
-
-def plot_stacked_bar_chart(df, num_companies):
+def plot_stacked_bar_chart(df):
     grouped = df.groupby(["Company_Name", "Status"]).size().unstack(fill_value=0)
-    top_companies = grouped.sum(axis=1).nlargest(num_companies).index
-    filtered_df = grouped.loc[top_companies]
     
-    fig, ax = plt.subplots(figsize=(10, 6))
-    filtered_df.plot(kind="barh", stacked=True, ax=ax)
+    fig, ax = plt.subplots(figsize=(12, len(grouped) * 0.5))  # Dynamic height
+    grouped.plot(kind="barh", stacked=True, ax=ax)
     ax.set_xlabel("Number of Applications")
     ax.set_ylabel("Company")
     ax.set_title("Job Applications by Company and Status")
+    ax.legend(title="Status", bbox_to_anchor=(1.05, 1), loc='upper left')  # Move legend
     st.pyplot(fig)
 
-# Show the stacked bar chart with dynamic company selection
-plot_stacked_bar_chart(df, num_companies)
+# Show the stacked bar chart with all companies
+plot_stacked_bar_chart(df)
