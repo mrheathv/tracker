@@ -1,7 +1,7 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
-import plotly.express as px
+import matplotlib.pyplot as plt
 
 db_path = "job_tracker.db"
 
@@ -31,22 +31,16 @@ st.write(df)
 num_companies = st.slider("Select number of companies to display", min_value=5, max_value=len(df["Company_Name"].unique()), value=10)
 
 def plot_stacked_bar_chart(df, num_companies):
-    grouped = df.groupby(["Company_Name", "Status"]).size().reset_index(name="Count")
-    top_companies = grouped.groupby("Company_Name")["Count"].sum().nlargest(num_companies).index
-    filtered_df = grouped[grouped["Company_Name"].isin(top_companies)]
+    grouped = df.groupby(["Company_Name", "Status"]).size().unstack(fill_value=0)
+    top_companies = grouped.sum(axis=1).nlargest(num_companies).index
+    filtered_df = grouped.loc[top_companies]
     
-    fig = px.bar(
-        filtered_df,
-        x="Count",
-        y="Company_Name",
-        color="Status",
-        orientation="h",
-        title="Job Applications by Company and Status",
-        labels={"Count": "Number of Applications", "Company_Name": "Company"},
-        text="Count"
-    )
-    fig.update_layout(barmode="stack")
-    st.plotly_chart(fig)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    filtered_df.plot(kind="barh", stacked=True, ax=ax)
+    ax.set_xlabel("Number of Applications")
+    ax.set_ylabel("Company")
+    ax.set_title("Job Applications by Company and Status")
+    st.pyplot(fig)
 
 # Show the stacked bar chart with dynamic company selection
 plot_stacked_bar_chart(df, num_companies)
