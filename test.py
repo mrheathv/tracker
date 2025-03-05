@@ -1,70 +1,52 @@
 import streamlit as st
 import sqlite3
-import pandas as pd
+import os
 
-db_path = "job_tracker.db"
+# Function to connect to the database
+def get_db_connection():
+    db_path = os.path.join(os.path.dirname(__file__), "job_tracker.db")
+    conn = sqlite3.connect(db_path, check_same_thread=False)
+    return conn
 
-if st.button("Refresh Data"):
-    st.cache_data.clear()
-    st.rerun()
+# Ensure the table exists
+conn = get_db_connection()
+cursor = conn.cursor()
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS jobs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        company TEXT,
+        location TEXT,
+        status TEXT
+    )
+""")
+conn.commit()
+conn.close()
 
-def get_application_data():
-    conn = sqlite3.connect(db_path)
-    query = """
-    SELECT 
-        fact_application.app_id AS Application_ID,
-        dim_company.name AS Company_Name,
-        dim_role.role AS Role,
-        dim_status.status AS Status
-    FROM fact_application
-    JOIN dim_company ON fact_application.company_id = dim_company.id
-    JOIN dim_role ON fact_application.role_id = dim_role.id
-    JOIN dim_status ON fact_application.status_id = dim_status.id
-    """
-    df = pd.read_sql(query, conn)
+# Streamlit app layout
+st.title("Job Tracker - Data Entry")
+
+title = st.text_input("Job Title")
+company = st.text_input("Company")
+location = st.text_input("Location")
+status = st.selectbox("Application Status", ["Applied", "Interviewing", "Offered", "Rejected"])
+
+if st.button("Submit"):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO jobs (title, company, location, status) VALUES (?, ?, ?, ?)",
+                   (title, company, location, status))
+    conn.commit()
     conn.close()
-    return df
+    st.success("Job entry added successfully!")
 
-st.title("Applications List")
+# Display current data
+st.subheader("Current Job Entries")
+conn = get_db_connection()
+cursor = conn.cursor()
+cursor.execute("SELECT * FROM jobs")
+rows = cursor.fetchall()
+conn.close()
 
-# Display Total Applications and Status Counts
-def get_application_summary():
-    conn = sqlite3.connect(db_path)
-    query = """
-    SELECT COUNT(app_id) AS total_apps FROM fact_application
-    """
-    total_apps = pd.read_sql(query, conn).iloc[0, 0]
-    
-    query = """
-    SELECT dim_status.status AS Status, COUNT(fact_application.app_id) AS Total_Applications
-    FROM fact_application
-    JOIN dim_status ON fact_application.status_id = dim_status.id
-    GROUP BY dim_status.status
-    """
-    status_counts = pd.read_sql(query, conn)
-    conn.close()
-    return total_apps, status_counts
-
-total_apps, status_counts = get_application_summary()
-st.write(f"### Total Applications: {total_apps}")
-for index, row in status_counts.iterrows():
-    st.write(f"- {row['Status']}: {row['Total_Applications']}")
-
-# Chart: Total Applications by Status
-def get_status_counts():
-    conn = sqlite3.connect(db_path)
-    query = """
-    SELECT dim_status.status AS Status, COUNT(fact_application.app_id) AS Total_Applications
-    FROM fact_application
-    JOIN dim_status ON fact_application.status_id = dim_status.id
-    GROUP BY dim_status.status
-    """
-    df = pd.read_sql(query, conn)
-    conn.close()
-    return df
-
-status_data = get_status_counts()
-st.bar_chart(status_data.set_index("Status"))
-
-data = get_application_data()
-st.dataframe(data, hide_index=True)
+for row in rows:
+    st.write(row)
