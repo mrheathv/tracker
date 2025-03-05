@@ -30,7 +30,7 @@ def plot_stacked_bar_chart(df):
     grouped = df.groupby(["Company_Name", "Status"]).size().unstack(fill_value=0)
     
     st.write("### Job Applications by Company and Status")
-    st.bar_chart(grouped)
+    st.bar_chart(grouped, horizontal=True)
 
 # Show the stacked bar chart with all companies
 plot_stacked_bar_chart(df)
