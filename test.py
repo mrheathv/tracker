@@ -1,7 +1,7 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
 
 db_path = "job_tracker.db"
 
@@ -27,16 +27,22 @@ df = get_application_data()
 # Display DataFrame in Streamlit
 st.write(df)
 
-# Create a stacked bar chart
+# Create a stacked bar chart using Plotly
 def plot_stacked_bar_chart(df):
-    grouped = df.groupby(["Company_Name", "Status"]).size().unstack(fill_value=0)
+    grouped = df.groupby(["Company_Name", "Status"]).size().reset_index(name="Count")
     
-    fig, ax = plt.subplots(figsize=(10, 6))
-    grouped.plot(kind="barh", stacked=True, ax=ax)
-    ax.set_xlabel("Number of Applications")
-    ax.set_ylabel("Company")
-    ax.set_title("Job Applications by Company and Status")
-    st.pyplot(fig)
+    fig = px.bar(
+        grouped,
+        x="Count",
+        y="Company_Name",
+        color="Status",
+        orientation="h",
+        title="Job Applications by Company and Status",
+        labels={"Count": "Number of Applications", "Company_Name": "Company"},
+        text="Count"
+    )
+    fig.update_layout(barmode="stack")
+    st.plotly_chart(fig)
 
 # Show the stacked bar chart
 plot_stacked_bar_chart(df)
