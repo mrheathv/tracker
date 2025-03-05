@@ -1,7 +1,6 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
-import matplotlib.pyplot as plt
 
 db_path = "job_tracker.db"
 
@@ -30,13 +29,8 @@ st.write(df)
 def plot_stacked_bar_chart(df):
     grouped = df.groupby(["Company_Name", "Status"]).size().unstack(fill_value=0)
     
-    fig, ax = plt.subplots(figsize=(12, len(grouped) * 0.5))  # Dynamic height
-    grouped.plot(kind="barh", stacked=True, ax=ax)
-    ax.set_xlabel("Number of Applications")
-    ax.set_ylabel("Company")
-    ax.set_title("Job Applications by Company and Status")
-    ax.legend(title="Status", bbox_to_anchor=(1.05, 1), loc='upper left')  # Move legend
-    st.pyplot(fig)
+    st.write("### Job Applications by Company and Status")
+    st.bar_chart(grouped)
 
 # Show the stacked bar chart with all companies
 plot_stacked_bar_chart(df)
