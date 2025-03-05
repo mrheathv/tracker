@@ -27,12 +27,16 @@ df = get_application_data()
 # Display DataFrame in Streamlit
 st.write(df)
 
-# Create a stacked bar chart using Plotly
-def plot_stacked_bar_chart(df):
+# Allow user to filter number of companies displayed
+num_companies = st.slider("Select number of companies to display", min_value=5, max_value=len(df["Company_Name"].unique()), value=10)
+
+def plot_stacked_bar_chart(df, num_companies):
     grouped = df.groupby(["Company_Name", "Status"]).size().reset_index(name="Count")
+    top_companies = grouped.groupby("Company_Name")["Count"].sum().nlargest(num_companies).index
+    filtered_df = grouped[grouped["Company_Name"].isin(top_companies)]
     
     fig = px.bar(
-        grouped,
+        filtered_df,
         x="Count",
         y="Company_Name",
         color="Status",
@@ -44,5 +48,5 @@ def plot_stacked_bar_chart(df):
     fig.update_layout(barmode="stack")
     st.plotly_chart(fig)
 
-# Show the stacked bar chart
-plot_stacked_bar_chart(df)
+# Show the stacked bar chart with dynamic company selection
+plot_stacked_bar_chart(df, num_companies)
