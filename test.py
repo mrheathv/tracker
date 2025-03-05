@@ -28,7 +28,6 @@ st.write(df)
 
 def plot_stacked_bar_chart(df):
     grouped = df.groupby(["Company_Name", "Status"]).size().unstack(fill_value=0)
-    grouped = grouped.T  # Transpose to make the bar chart horizontal
     
     st.write("### Job Applications by Company and Status")
     st.bar_chart(grouped)
