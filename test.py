@@ -1,52 +1,57 @@
 import streamlit as st
 import sqlite3
-import os
+import pandas as pd
+import matplotlib.pyplot as plt
 
-# Function to connect to the database
-def get_db_connection():
-    db_path = os.path.join(os.path.dirname(__file__), "job_tracker.db")
-    conn = sqlite3.connect(db_path, check_same_thread=False)
-    return conn
+db_path = "job_tracker.db"
 
-# Ensure the table exists
-conn = get_db_connection()
-cursor = conn.cursor()
-cursor.execute("""
-    CREATE TABLE IF NOT EXISTS jobs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT,
-        company TEXT,
-        location TEXT,
-        status TEXT
-    )
-""")
-conn.commit()
-conn.close()
+def get_data(table):
+    conn = sqlite3.connect(db_path)
+    query = f"SELECT * FROM {table}"
+    df = pd.read_sql(query, conn)
+    conn.close()
+    return df
 
-# Streamlit app layout
-st.title("Job Tracker - Data Entry")
+def get_application_data():
+    conn = sqlite3.connect(db_path)
+    query = """
+        SELECT fa.company_id, fa.status_id, dc.name AS company_name, ds.status AS status_name
+        FROM fact_application fa
+        JOIN dim_company dc ON fa.company_id = dc.id
+        JOIN dim_status ds ON fa.status_id = ds.id
+    """
+    df = pd.read_sql(query, conn)
+    conn.close()
+    return df
 
-title = st.text_input("Job Title")
-company = st.text_input("Company")
-location = st.text_input("Location")
-status = st.selectbox("Application Status", ["Applied", "Interviewing", "Offered", "Rejected"])
+st.title("Job Tracker")
 
-if st.button("Submit"):
-    conn = get_db_connection()
+st.header("View Data")
+table_option = st.selectbox("Select a table to view", ["fact_application", "dim_company", "dim_role", "dim_status"])
+data = get_data(table_option)
+st.dataframe(data)
+
+st.header("Job Applications by Company and Status")
+application_data = get_application_data()
+
+# Aggregate data for visualization
+df_grouped = application_data.groupby(["company_name", "status_name"]).size().unstack(fill_value=0)
+
+# Create the plot
+fig, ax = plt.subplots(figsize=(10, 6))
+df_grouped.plot(kind='barh', stacked=True, ax=ax)
+ax.set_xlabel("Number of Applications")
+ax.set_ylabel("Company")
+ax.set_title("Job Applications by Company and Status")
+ax.legend(title="Application Status", bbox_to_anchor=(1.05, 1), loc="upper left")
+st.pyplot(fig)
+
+def insert_entry(company_id, role_id, referral, date_applie, status_id, screening, interview_1, interview_2, interview_3, offer):
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO jobs (title, company, location, status) VALUES (?, ?, ?, ?)",
-                   (title, company, location, status))
+    cursor.execute("""
+        INSERT INTO fact_application (company_id, role_id, referral, date_applie, status_id, screening, interview_1, interview_2, interview_3, offer)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (company_id, role_id, referral, date_applie, status_id, screening, interview_1, interview_2, interview_3, offer))
     conn.commit()
     conn.close()
-    st.success("Job entry added successfully!")
-
-# Display current data
-st.subheader("Current Job Entries")
-conn = get_db_connection()
-cursor = conn.cursor()
-cursor.execute("SELECT * FROM jobs")
-rows = cursor.fetchall()
-conn.close()
-
-for row in rows:
-    st.write(row)
