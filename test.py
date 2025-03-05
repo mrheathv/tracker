@@ -23,21 +23,6 @@ def get_application_data():
 
 st.title("Applications List")
 
-# Fetch application data
-df = get_application_data()
-
-# Display DataFrame in Streamlit
-st.write(df)
-
-def plot_stacked_bar_chart(df):
-    grouped = df.groupby(["Company_Name", "Status"]).size().unstack(fill_value=0)
-    
-    st.write("### Job Applications by Company and Status")
-    st.bar_chart(grouped, horizontal=True)
-
-# Show the stacked bar chart with all companies
-plot_stacked_bar_chart(df)
-
 def get_application_summary():
     conn = sqlite3.connect(db_path)
     query = """
@@ -59,3 +44,18 @@ total_apps, status_counts = get_application_summary()
 st.write(f"### Total Applications: {total_apps}")
 for index, row in status_counts.iterrows():
     st.write(f"- {row['Status']}: {row['Total_Applications']}")
+
+# Fetch application data
+df = get_application_data()
+
+# Display DataFrame in Streamlit
+st.write(df)
+
+def plot_stacked_bar_chart(df):
+    grouped = df.groupby(["Company_Name", "Status"]).size().unstack(fill_value=0)
+    
+    st.write("### Job Applications by Company and Status")
+    st.bar_chart(grouped, horizontal=True)
+
+# Show the stacked bar chart with all companies
+plot_stacked_bar_chart(df)
