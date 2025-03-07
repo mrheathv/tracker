@@ -143,6 +143,6 @@ fig = go.Figure(go.Funnel(
 ))
 
 # Streamlit app layout
-st.header("Interview Progression Funnel")
+st.markdown("<h3 style='text-align: center;'>Interview Progression Funnel</h3>", unsafe_allow_html=True)
 st.plotly_chart(fig)
 
