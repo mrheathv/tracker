@@ -7,44 +7,6 @@ import plotly.graph_objects as go
 
 db_path = "job_tracker.db"
 
-# Connect to SQLite database
-DB_PATH = "job_tracker.db"  # Adjust if needed
-conn = sqlite3.connect(DB_PATH)
-
-# Fetch role, company, and application data
-query = """
-SELECT dr.role_category, dr.location, dc.number_of_employees AS company_size, 
-       dc.industry AS company_industry, fa.referral, COUNT(fa.app_id) as application_count
-FROM fact_application fa
-JOIN dim_role dr ON fa.role_id = dr.id
-JOIN dim_company dc ON fa.company_id = dc.id
-GROUP BY dr.role_category, dr.location, dc.number_of_employees, dc.industry, fa.referral
-ORDER BY application_count DESC;
-"""
-role_location_df = pd.read_sql(query, conn)
-conn.close()
-
-# Sidebar filters
-st.sidebar.header("Filter Applications")
-
-# Filter by Referral
-referral_options = ["All"] + sorted(role_location_df["referral"].dropna().unique().tolist())
-selected_referral = st.sidebar.selectbox("Application Referral", referral_options)
-
-# Apply filter
-filtered_df = role_location_df.copy()  # Start with a copy of the full dataset
-if selected_referral != "All":
-    filtered_df = filtered_df[filtered_df["referral"] == selected_referral]
-
-st.write("Filtered Data Preview:", filtered_df)  # Debugging step
-
-# Now use `filtered_df` in all visualizations instead of `role_location_df`
-fig = px.bar(filtered_df, x="role_category", y="application_count", color="company_industry")
-st.plotly_chart(fig)
-
-fig2 = px.scatter(filtered_df, x="company_size", y="application_count", color="location")
-st.plotly_chart(fig2)
-
 def get_application_data():
     conn = sqlite3.connect(db_path)
     query = """
@@ -62,7 +24,7 @@ def get_application_data():
     return df
 
 
-st.title("Applications Tracker")
+st.title("Application Tracker")
 
 def get_application_summary():
     conn = sqlite3.connect(db_path)
