@@ -140,6 +140,7 @@ fig = go.Figure(go.Funnel(
     x=counts,
     textinfo="value+percent initial",
     marker={"color": "royalblue"}
+    title="Job Applications by Company and Status",
 ))
 
 # Streamlit app layout
