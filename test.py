@@ -24,7 +24,7 @@ def get_application_data():
     return df
 
 
-st.title("Applications List")
+st.title("Applications Tracker")
 
 def get_application_summary():
     conn = sqlite3.connect(db_path)
