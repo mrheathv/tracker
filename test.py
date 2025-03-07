@@ -45,6 +45,22 @@ st.write(f"### Total Applications: {total_apps}")
 for index, row in status_counts.iterrows():
     st.write(f"- {row['Status']}: {row['Total_Applications']}")
 
+# Chart: Total Applications by Status
+def get_status_counts():
+    conn = sqlite3.connect(db_path)
+    query = """
+    SELECT dim_status.status AS Status, COUNT(fact_application.app_id) AS Total_Applications
+    FROM fact_application
+    JOIN dim_status ON fact_application.status_id = dim_status.id
+    GROUP BY dim_status.status
+    """
+    df = pd.read_sql(query, conn)
+    conn.close()
+    return df
+
+status_data = get_status_counts()
+st.bar_chart(status_data.set_index("Status"))
+
 # Fetch application data
 df = get_application_data()
 
