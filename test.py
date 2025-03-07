@@ -31,35 +31,19 @@ st.sidebar.header("Filter Applications")
 referral_options = ["All"] + sorted(role_location_df["referral"].dropna().unique().tolist())
 selected_referral = st.sidebar.selectbox("Application Referral", referral_options)
 
-# Filter by Role Category
-role_options = ["All"] + sorted(role_location_df["role_category"].dropna().unique().tolist())
-selected_role = st.sidebar.selectbox("Role Category", role_options)
-
-# Filter by Role Location
-location_options = ["All"] + sorted(role_location_df["location"].dropna().unique().tolist())
-selected_location = st.sidebar.selectbox("Role Location", location_options)
-
-# Filter by Company Size
-company_size_options = ["All"] + sorted(role_location_df["company_size"].dropna().unique().tolist())
-selected_company_size = st.sidebar.selectbox("Company Size", company_size_options)
-
-# Filter by Company Industry
-industry_options = ["All"] + sorted(role_location_df["company_industry"].dropna().unique().tolist())
-selected_industry = st.sidebar.selectbox("Company Industry", industry_options)
-
-# Apply filters
-filtered_df = role_location_df.copy()
+# Apply filter
+filtered_df = role_location_df.copy()  # Start with a copy of the full dataset
 if selected_referral != "All":
     filtered_df = filtered_df[filtered_df["referral"] == selected_referral]
-if selected_role != "All":
-    filtered_df = filtered_df[filtered_df["role_category"] == selected_role]
-if selected_location != "All":
-    filtered_df = filtered_df[filtered_df["location"] == selected_location]
-if selected_company_size != "All":
-    filtered_df = filtered_df[filtered_df["company_size"] == selected_company_size]
-if selected_industry != "All":
-    filtered_df = filtered_df[filtered_df["company_industry"] == selected_industry]
 
+st.write("Filtered Data Preview:", filtered_df)  # Debugging step
+
+# Now use `filtered_df` in all visualizations instead of `role_location_df`
+fig = px.bar(filtered_df, x="role_category", y="application_count", color="company_industry")
+st.plotly_chart(fig)
+
+fig2 = px.scatter(filtered_df, x="company_size", y="application_count", color="location")
+st.plotly_chart(fig2)
 
 def get_application_data():
     conn = sqlite3.connect(db_path)
