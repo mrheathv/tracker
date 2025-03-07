@@ -43,7 +43,7 @@ def get_application_summary():
     conn.close()
     return total_apps, status_counts
 
-total_apps = get_application_summary()
+total_apps, status_counts = get_application_summary()
 st.write(f"### Total Applications: {total_apps}")
 for index, row in status_counts.iterrows():
     st.write(f"- {row['Status']}: {row['Total_Applications']}")
