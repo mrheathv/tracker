@@ -1,3 +1,8 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import sqlite3
+
 # Connect to the SQLite database
 DB_PATH = "job_tracker.db"  # Ensure this matches the correct path in your setup
 conn = sqlite3.connect(DB_PATH)
