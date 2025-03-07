@@ -233,3 +233,5 @@ st.plotly_chart(fig)
 
 # Display the raw data
 st.dataframe(role_location_df, hide_index=True)
+
+st.dataframe(df, use_container_width=True, hide_index=True)
