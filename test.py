@@ -90,7 +90,7 @@ st.plotly_chart(fig, use_container_width=True)
 df = get_application_data()
 
 # Display DataFrame in Streamlit
-st.dataframe(df.style.hide_index())
+st.table(df.style.hide_index())
 
 def plot_stacked_bar_chart(df):
     # Count applications per company and status
