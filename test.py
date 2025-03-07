@@ -202,3 +202,32 @@ st.plotly_chart(fig)
 st.dataframe(metrics_df, hide_index=True)
 
 
+# Fetch role category and location data along with application counts
+query = """
+SELECT dr.role_category, dr.location, COUNT(fa.app_id) as application_count
+FROM fact_application fa
+JOIN dim_role dr ON fa.role_id = dr.id
+GROUP BY dr.role_category, dr.location
+ORDER BY application_count DESC;
+"""
+role_location_df = pd.read_sql(query, conn)
+conn.close()
+
+# Create a grouped bar chart using Plotly
+fig = px.bar(
+    role_location_df,
+    x="role_category",
+    y="application_count",
+    color="location",
+    barmode="group",
+    title="Applications by Role Category and Location",
+    labels={"application_count": "Number of Applications", "role_category": "Role Category", "location": "Location"}
+)
+
+# Use Markdown with custom styling for a smaller title with reduced spacing
+st.markdown("<h3 style='text-align: center; margin-bottom: -20px;'>Applications by Role and Location</h3>", unsafe_allow_html=True)
+st.plotly_chart(fig)
+
+# Display the raw data
+st.dataframe(role_location_df)
+
