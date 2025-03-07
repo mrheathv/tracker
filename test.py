@@ -26,28 +26,6 @@ def get_application_data():
 
 st.title("Applications Tracker")
 
-def get_application_summary():
-    conn = sqlite3.connect(db_path)
-    query = """
-    SELECT COUNT(app_id) AS total_apps FROM fact_application
-    """
-    total_apps = pd.read_sql(query, conn).iloc[0, 0]
-    
-    query = """
-    SELECT dim_status.status AS Status, COUNT(fact_application.app_id) AS Total_Applications
-    FROM fact_application
-    JOIN dim_status ON fact_application.status_id = dim_status.id
-    GROUP BY dim_status.status
-    """
-    status_counts = pd.read_sql(query, conn)
-    conn.close()
-    return total_apps, status_counts
-
-total_apps, status_counts = get_application_summary()
-st.write(f"### Total Applications: {total_apps}")
-for index, row in status_counts.iterrows():
-    st.write(f"- {row['Status']}: {row['Total_Applications']}")
-
 # Chart: Total Applications by Status
 def get_status_counts():
     conn = sqlite3.connect(db_path)
