@@ -2,6 +2,7 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 import altair as alt
+import plotly.express as px
 
 
 db_path = "job_tracker.db"
@@ -63,35 +64,26 @@ def get_status_counts():
 status_data = get_status_counts()
 #####
 
-# Base bar chart
-chart = alt.Chart(status_data).mark_bar().encode(
-    x=alt.X("Total_Applications:Q", title="Total Applications"),
-    y=alt.Y("Status:N", sort="-x", title="Status")  # Sorting bars by value
-).properties(
-    width=600,
-    height=400
+# Create a horizontal bar chart with Plotly
+fig = px.bar(
+    status_data,
+    x="Total_Applications",
+    y="Status",
+    orientation="h",  # Horizontal bars
+    text="Total_Applications",  # Labels directly on bars
 )
 
-# Add text labels inside the bars
-text = alt.Chart(status_data).mark_text(
-    align="left",  # Align text to the left
-    baseline="middle",
-    dx=3,  # Distance from bar
-    color="black"  # Ensures visibility
-).encode(
-    x="Total_Applications:Q",
-    y="Status:N",
-    text="Total_Applications:Q"  # Show value on the bar
+# Customize the layout
+fig.update_traces(textposition="outside")  # Position labels outside the bars
+fig.update_layout(
+    title="Applications by Status",
+    xaxis_title="Total Applications",
+    yaxis_title="Status",
+    height=500,  # Adjust height
 )
 
-# Combine bar chart and text labels
-final_chart = (chart + text).configure_axis(
-    labelFontSize=12,
-    titleFontSize=14
-)
-
-st.altair_chart(final_chart, use_container_width=True)
-
+# Display the Plotly chart in Streamlit
+st.plotly_chart(fig, use_container_width=True)
 
 #####
 # Fetch application data
