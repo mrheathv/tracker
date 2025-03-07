@@ -199,6 +199,6 @@ st.markdown("<h3 style='text-align: center; margin-bottom: -20px;'>Interview Pro
 st.plotly_chart(fig)
 
 # Display the raw funnel metrics data
-st.dataframe(metrics_df)
+st.dataframe(metrics_df, hide_index=True)
 
 
