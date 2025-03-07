@@ -143,6 +143,6 @@ fig = go.Figure(go.Funnel(
 ))
 
 # Streamlit app layout
-st.title("Interview Progression Funnel")
+st.header("Interview Progression Funnel")
 st.plotly_chart(fig)
 
