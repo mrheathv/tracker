@@ -59,7 +59,7 @@ def get_status_counts():
     return df
 
 status_data = get_status_counts()
-st.bar_chart(status_data.set_index("Status"))
+st.bar_chart(status_data.set_index("Status"), horizontal=True)
 
 # Fetch application data
 df = get_application_data()
