@@ -202,6 +202,10 @@ st.plotly_chart(fig)
 st.dataframe(metrics_df, hide_index=True)
 
 
+# Connect to SQLite database
+DB_PATH = "job_tracker.db"  # Adjust if needed
+conn = sqlite3.connect(DB_PATH)
+
 # Fetch role category and location data along with application counts
 query = """
 SELECT dr.role_category, dr.location, COUNT(fa.app_id) as application_count
@@ -230,4 +234,3 @@ st.plotly_chart(fig)
 
 # Display the raw data
 st.dataframe(role_location_df)
-
