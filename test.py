@@ -60,16 +60,31 @@ def get_status_counts():
     conn.close()
     return df
 
-status_data = get_status_counts()
+import altair as alt
+
+# Create the bar chart
 chart = alt.Chart(status_data).mark_bar().encode(
     x="Total_Applications:Q",
-    y=alt.Y("Status:N", sort="-x"),  # Ensures better sorting
+    y=alt.Y("Status:N", sort="-x"),  # Sorting bars by value
 ).properties(
     width=600,  # Increase width
     height=400  # Increase height
 )
 
-st.altair_chart(chart, use_container_width=True)
+# Add labels on the bars
+text = chart.mark_text(
+    align="left",
+    baseline="middle",
+    dx=5  # Adjust distance from bar
+).encode(
+    text="Total_Applications:Q"
+)
+
+# Combine bar chart and text labels
+final_chart = chart + text
+
+st.altair_chart(final_chart, use_container_width=True)
+
 
 # Fetch application data
 df = get_application_data()
