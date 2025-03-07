@@ -143,7 +143,7 @@ fig = go.Figure(go.Funnel(
 ))
 
 # Streamlit app layout
-st.markdown("<h3 style='text-align: center; margin-bottom: -20px;'>Interview Progression Funnel</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center; margin-bottom: -20px;'>Interview Progression Funnels</h3>", unsafe_allow_html=True)
 st.plotly_chart(fig)
 
 import streamlit as st
@@ -195,7 +195,6 @@ fig = px.bar(
 )
 
 # Use Markdown with custom styling for a smaller title with reduced spacing
-st.markdown("<h3 style='text-align: center; margin-bottom: -20px;'>Interview Progression Funnel</h3>", unsafe_allow_html=True)
 st.plotly_chart(fig)
 
 # Display the raw funnel metrics data
@@ -233,4 +232,4 @@ st.markdown("<h3 style='text-align: center; margin-bottom: -20px;'>Applications 
 st.plotly_chart(fig)
 
 # Display the raw data
-st.dataframe(role_location_df)
+st.dataframe(role_location_df, hide_index=True)
