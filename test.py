@@ -139,8 +139,8 @@ fig = go.Figure(go.Funnel(
     y=stages,
     x=counts,
     textinfo="value+percent initial",
-    marker={"color": "royalblue"}
-    title="Job Applications by Company and Status",
+    marker={"color": "royalblue"},
+    title="Interview Progression Funnel"
 ))
 
 # Streamlit app layout
