@@ -112,3 +112,35 @@ def plot_stacked_bar_chart(df):
 
 # Call the function in your Streamlit app
 plot_stacked_bar_chart(df)
+
+# Connect to SQLite database
+DB_PATH = "job_tracker.db"  # Adjust the path if needed
+conn = sqlite3.connect(DB_PATH)
+
+# Fetch interview progression data
+query = "SELECT screening, interview_1, interview_2, interview_3, offer FROM fact_application;"
+applications_df = pd.read_sql(query, conn)
+conn.close()
+
+# Count occurrences at each stage
+stages = ["Applied", "Screening", "Interview 1", "Interview 2", "Interview 3", "Offer"]
+counts = [
+    len(applications_df),
+    applications_df["screening"].notnull().sum(),
+    applications_df["interview_1"].notnull().sum(),
+    applications_df["interview_2"].notnull().sum(),
+    applications_df["interview_3"].notnull().sum(),
+    applications_df["offer"].notnull().sum()
+]
+
+# Create a Plotly funnel chart
+fig = go.Funnel(
+    y=stages,
+    x=counts,
+    textinfo="value+percent initial",
+    marker={"color": "royalblue"}
+)
+
+# Streamlit app layout
+st.title("Interview Progression Funnel")
+st.plotly_chart(fig)
