@@ -63,29 +63,37 @@ def get_status_counts():
 status_data = get_status_counts()
 #####
 
-# Create the bar chart
+# Base bar chart
 chart = alt.Chart(status_data).mark_bar().encode(
-    x="Total_Applications:Q",
-    y=alt.Y("Status:N", sort="-x"),  # Sorting bars by value
+    x=alt.X("Total_Applications:Q", title="Total Applications"),
+    y=alt.Y("Status:N", sort="-x", title="Status")  # Sorting bars by value
 ).properties(
-    width=600,  # Increase width
-    height=400  # Increase height
+    width=600,
+    height=400
 )
 
-# Add labels on the bars
-text = chart.mark_text(
-    align="left",
+# Add text labels inside the bars
+text = alt.Chart(status_data).mark_text(
+    align="left",  # Align text to the left
     baseline="middle",
-    dx=5  # Adjust distance from bar
+    dx=3,  # Distance from bar
+    color="black"  # Ensures visibility
 ).encode(
-    text="Total_Applications:Q"
+    x="Total_Applications:Q",
+    y="Status:N",
+    text="Total_Applications:Q"  # Show value on the bar
 )
 
 # Combine bar chart and text labels
-final_chart = chart + text
+final_chart = (chart + text).configure_axis(
+    labelFontSize=12,
+    titleFontSize=14
+)
 
 st.altair_chart(final_chart, use_container_width=True)
 
+
+#####
 # Fetch application data
 df = get_application_data()
 
