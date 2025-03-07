@@ -61,6 +61,14 @@ def get_status_counts():
     return df
 
 status_data = get_status_counts()
+chart = alt.Chart(status_data).mark_bar().encode(
+    x="Total_Applications:Q",
+    y=alt.Y("Status:N", sort="-x"),  # Ensures better sorting
+).properties(
+    width=600,  # Increase width
+    height=400  # Increase height
+)
+
 st.altair_chart(chart, use_container_width=True)
 
 # Fetch application data
