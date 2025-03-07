@@ -107,7 +107,6 @@ fig = px.line(
 )
 
 # Display in Streamlit
-st.markdown("<h3 style='text-align: center; margin-bottom: -20px;'>Applications Over Time</h3>", unsafe_allow_html=True)
 st.plotly_chart(fig)
 
 # Fetch application data
