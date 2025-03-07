@@ -1,6 +1,8 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
+import altair as alt
+
 
 db_path = "job_tracker.db"
 
