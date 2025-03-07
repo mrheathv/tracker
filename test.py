@@ -231,7 +231,6 @@ fig = px.bar(
 st.markdown("<h3 style='text-align: center; margin-bottom: -20px;'>Applications by Role and Location</h3>", unsafe_allow_html=True)
 st.plotly_chart(fig)
 
-# Display the raw data
-st.dataframe(role_location_df, hide_index=True)
+st.markdown("<h3 style='text-align: center; margin-bottom: -20px;'>Company, Role, Status</h3>", unsafe_allow_html=True)
 
 st.dataframe(df, use_container_width=True, hide_index=True)
