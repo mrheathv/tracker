@@ -86,33 +86,17 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 #####
+# Fetch application data
+df = get_application_data()
+
+# Display DataFrame in Streamlit
+st.write(df)
 
 def plot_stacked_bar_chart(df):
-    # Count applications per company and status
-    grouped = df.groupby(["Company_Name", "Status"]).size().reset_index(name="Total_Applications")
+    grouped = df.groupby(["Company_Name", "Status"]).size().unstack(fill_value=0)
+    
+    st.write("### Job Applications by Company and Status")
+    st.bar_chart(grouped, horizontal=True)
 
-    # Create a stacked bar chart
-    fig = px.bar(
-        grouped,
-        x="Total_Applications",
-        y="Company_Name",
-        color="Status",  # Different colors for statuses
-        orientation="h",  # Horizontal bars
-        text="Total_Applications",  # Display counts on bars
-        title="Job Applications by Company and Status",
-    )
-
-    # Customize layout
-    fig.update_traces(textposition="inside")  # Place labels inside bars
-    fig.update_layout(
-        xaxis_title="Total Applications",
-        yaxis_title="Company Name",
-        barmode="stack",  # Ensure stacking
-        height=600,  # Adjust height for readability
-    )
-
-    # Display in Streamlit
-    st.plotly_chart(fig, use_container_width=True)
-
-# Call the function in your Streamlit app
+# Show the stacked bar chart with all companies
 plot_stacked_bar_chart(df)
